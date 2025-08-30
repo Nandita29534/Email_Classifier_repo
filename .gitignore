@@ -1,2 +1,51 @@
+#  Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+#  Jupyter Notebooks
+.ipynb_checkpoints/
+
+# 🔒 Environments
 .env
-.ipynb_checkpoints
+.venv/
+venv/
+ENV/
+env/
+.conda/
+*.conda
+*.pickle
+*.pkl
+
+#  Data files (optional - keep large/raw data out of git)
+data/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+#  IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+#  Logs
+*.log
+*.out
+*.err
+
+#  Credentials
+*.json
+*.yaml
+*.yml
+*.ini
