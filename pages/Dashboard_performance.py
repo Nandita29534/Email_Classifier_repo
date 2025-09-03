@@ -1,12 +1,9 @@
 import os
 import streamlit as st
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import psycopg2
 from scipy.sparse import hstack, issparse
 import textstat
 import re
@@ -17,27 +14,23 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, confusion_matrix
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from supabase import create_client
 
 # Download NLTK resources
 nltk.download('punkt')
 nltk.download("stopwords")
 nltk.download("vader_lexicon")
 
-# Load environment variables
-load_dotenv()
 
 try:
     # Database connection
-    DB_HOST = os.getenv("DB_HOST")
-    DB_PORT = os.getenv("DB_PORT")
-    DB_NAME = os.getenv("DB_NAME")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
+   url = st.secrets["supabase"]["url"]
+   key = st.secrets["supabase"]["key"]
+   supabase = create_client(url, key)
 
-    DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    engine = create_engine(DATABASE_URL)
+    response = supabase.table("test_data").select("*").execute()
 
-    test_df = pd.read_sql("SELECT * FROM test_data", engine)
+    test_df = pd.DataFrame(response.data)
 
     # --- Helper functions ---
     def clean_texts(col): 
