@@ -1,4 +1,5 @@
 import os
+import sys
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -21,9 +22,11 @@ import pickle
 # Configure logger
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='app.log',
-    filemode='a'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
