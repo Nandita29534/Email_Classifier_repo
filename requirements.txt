@@ -13,4 +13,4 @@ matplotlib
 seaborn
 plotly
 streamlit
-supabase==0.0.1
+supabase
