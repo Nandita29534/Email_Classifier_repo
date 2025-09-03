@@ -48,10 +48,6 @@ try:
     response = supabase.table("test_data").select("*").execute()
    
     logger.info(f"Supabase response data: {response.data}")
-     # --- Debugging Step: Print the raw response data to Streamlit ---
-    st.header("Debugging: Raw Supabase Data")
-    st.write("This is the raw data received from Supabase.")
-    st.json(response.data) # Use st.json for nicely formatted data
 
     test_df = pd.DataFrame(response.data)
     logger.info(f"Columns in the loaded DataFrame: {test_df.columns.tolist()}")
@@ -102,8 +98,8 @@ try:
 
     # --- Load model + vectorizer ---
     logger.info("Loading model and vectorizer...")
-    model = joblib.load("Email_Classifier/linear_svc_optuna.pkl")
-    tfidf = joblib.load("Email_Classifier/tfidf_vectorizer.pkl")
+    model = joblib.load(""C:/Users/Nandita/Email_Classifier/linear_svc_optuna.pkl"")
+    tfidf = joblib.load(""C:/Users/Nandita/Email_Classifier/tfidf_vectorizer.pkl"")
     logger.info("Model and vectorizer loaded successfully.")
 
     logger.info("Transforming input data.")
