@@ -100,8 +100,8 @@ try:
     logger.info("Loading model and vectorizer...")
 
     BASE_DIR = os.path.dirname(__file__)
-    MODEL_PATH = os.path.join(BASE_DIR, "pages", "linear_svc_optuna.pkl")
-    VECTORIZER_PATH = os.path.join(BASE_DIR, "pages", "tfidf_vectorizer.pkl")
+    MODEL_PATH = os.path.join(BASE_DIR,"linear_svc_optuna.pkl")
+    VECTORIZER_PATH = os.path.join(BASE_DIR,"tfidf_vectorizer.pkl")
 
     with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
