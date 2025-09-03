@@ -1,0 +1,15 @@
+numpy
+pandas
+scipy
+scikit-learn
+joblib
+nltk
+textstat
+vaderSentiment
+psycopg2-binary
+SQLAlchemy
+python-dotenv
+matplotlib
+seaborn
+plotly
+streamlit
