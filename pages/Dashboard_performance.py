@@ -54,8 +54,8 @@ try:
     st.write("This is the raw data received from Supabase.")
     st.json(response.data) # Use st.json for nicely formatted data
 
-    test_df = pd.DataFrame(response.data)
-    logger.info(f"Columns in the loaded DataFrame: {test_df.columns.tolist()}")
+    #test_df = pd.DataFrame(response.data)
+    #logger.info(f"Columns in the loaded DataFrame: {test_df.columns.tolist()}")
      
     # --- Helper functions ---
     def clean_texts(col): 
@@ -85,7 +85,7 @@ try:
 
     # --- Preprocessing ---
     logger.info("Starting data preprocessing.")
-    df1 = test_df.copy()
+    #df1 = test_df.copy()
     
     # Safely check for column existence
     required_cols = ['subject', 'body', 'text']
