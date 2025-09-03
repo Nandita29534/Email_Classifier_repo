@@ -103,11 +103,8 @@ try:
     MODEL_PATH = os.path.join(BASE_DIR,"linear_svc_optuna.pkl")
     VECTORIZER_PATH = os.path.join(BASE_DIR,"tfidf_vectorizer.pkl")
 
-    with open(MODEL_PATH, "rb") as f:
-        model = pickle.load(f)
-
-    with open(VECTORIZER_PATH, "rb") as f:
-        vectorizer = pickle.load(f)
+    model = joblib.load(MODEL_PATH)
+    vectorizer = joblib.load(VECTORIZER_PATH)  
 
     logger.info("Model and vectorizer loaded successfully.")
 
