@@ -99,8 +99,8 @@ try:
     # --- Load model + vectorizer ---
     logger.info("Loading model and vectorizer...")
     
-    model = joblib.load("linear_svc_optuna.pkl")
-    tfidf = joblib.load("tfidf_vectorizer.pkl")
+    model = joblib.load('linear_svc_optuna.pkl')
+    tfidf = joblib.load('tfidf_vectorizer.pkl')
     logger.info("Model and vectorizer loaded successfully.")
 
     logger.info("Transforming input data.")
