@@ -24,9 +24,9 @@ nltk.download("vader_lexicon")
 
 try:
     # Database connection
-   url = st.secrets["supabase"]["url"]
-   key = st.secrets["supabase"]["key"]
-   supabase = create_client(url, key)
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
+    supabase = create_client(url, key)
 
     response = supabase.table("test_data").select("*").execute()
 
@@ -35,9 +35,9 @@ try:
     # --- Helper functions ---
     def clean_texts(col): 
         col = col.lower() 
-        col = re.sub(r"\d+", " num ", col)  
-        col = re.sub(r"[^\w\s!?]", "", col)  
-        col = " ".join([word for word in col.split() if word not in stopwords.words('english')])  
+        col = re.sub(r"\d+", " num ", col) 
+        col = re.sub(r"[^\w\s!?]", "", col) 
+        col = " ".join([word for word in col.split() if word not in stopwords.words('english')]) 
         return col
 
     def combine_features(X_tfidf, engineered_features):
