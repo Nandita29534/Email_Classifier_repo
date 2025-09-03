@@ -98,8 +98,12 @@ try:
 
     # --- Load model + vectorizer ---
     logger.info("Loading model and vectorizer...")
-    model = joblib.load("C:/Users/Nandita/Email_Classifier/linear_svc_optuna.pkl")
-    tfidf = joblib.load("C:/Users/Nandita/Email_Classifier/tfidf_vectorizer.pkl")
+    current_dir = os.path.dirname(__file__)
+    project_root = os.path.dirname(current_dir)
+    model_path = os.path.join(project_root, "Email_Classifier", "linear_svc_optuna.pkl")
+    tfidf_path = os.path.join(project_root, "Email_Classifier", "tfidf_vectorizer.pkl")
+    model = joblib.load(model_path)
+    tfidf = joblib.load(tfidf_path)
     logger.info("Model and vectorizer loaded successfully.")
 
     logger.info("Transforming input data.")
