@@ -46,9 +46,17 @@ try:
     supabase = create_client(url, key)
 
     response = supabase.table("test_data").select("*").execute()
-    test_df = pd.DataFrame(response.data)
+   
     logger.info(f"Connected to Supabase and loaded {len(test_df)} rows from 'test_data'.")
+    logger.info(f"Supabase response data: {response.data}")
+     # --- Debugging Step: Print the raw response data to Streamlit ---
+    st.header("Debugging: Raw Supabase Data")
+    st.write("This is the raw data received from Supabase.")
+    st.json(response.data) # Use st.json for nicely formatted data
 
+     test_df = pd.DataFrame(response.data)
+     logger.info(f"Columns in the loaded DataFrame: {test_df.columns.tolist()}")
+     
     # --- Helper functions ---
     def clean_texts(col): 
         col = col.lower() 
