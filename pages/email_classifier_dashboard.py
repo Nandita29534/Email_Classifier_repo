@@ -59,7 +59,7 @@ def extract_features(text: str) -> csr_matrix:
 
     return csr_matrix(features)
 
-    def prepare_input(text: str):
+def prepare_input(text: str):
     cleaned = clean_text(text)
     X_tfidf = vectorizer.transform([cleaned])
     X_features = extract_features(text)
