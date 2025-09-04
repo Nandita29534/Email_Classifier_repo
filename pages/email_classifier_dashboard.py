@@ -129,8 +129,7 @@ if st.session_state.predicted_label:
                 "email_text": st.session_state.email_text,
                 "predicted_label": st.session_state.predicted_label,
                 "is_correct": True,
-                "correct_label": None,
-                "created_at": datetime.utcnow().isoformat()
+                "correct_label": None
             }).execute()
             st.success("Feedback saved as correct ✅")
             st.session_state.feedback_mode = None
@@ -150,8 +149,7 @@ if st.session_state.predicted_label:
                     "email_text": st.session_state.email_text,
                     "predicted_label": st.session_state.predicted_label,
                     "is_correct": False,
-                    "correct_label": final_label,
-                    "created_at": datetime.utcnow().isoformat()
+                    "correct_label": final_label
                 }).execute()
                 st.success(f"Feedback saved as incorrect ❌ with correction: {final_label}")
                 st.session_state.feedback_mode = None
