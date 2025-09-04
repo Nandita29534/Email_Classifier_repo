@@ -104,24 +104,29 @@ if submitted:
 
         with col1:
             if st.button("✅ Correct"):
-                supabase.table("feedback").insert({
-                    "email_text": email_text,
-                    "predicted_label": predicted_label,
-                    "is_correct": True,
-                    "correct_label": None,
-                    "created_at": datetime.utcnow().isoformat()
-                }).execute()
-                st.info("Feedback saved as correct ✅. This helps validate the model performance.")
+                try:
+                    supabase.table("feedback").insert({
+                        "email_text": email_text,
+                        "predicted_label": predicted_label,
+                        "is_correct": True,
+                        "correct_label": None,
+                        "created_at": datetime.utcnow().isoformat()
+                    }).execute()
+                    st.info("Feedback saved as correct ✅. This helps validate the model performance.")
+                except Exception as e:
+                    st.error(f"⚠️ Failed to save feedback: {e}")
 
         with col2:
-            if st.button("❌ Incorrect"):
-                st.write("Select the correct category or enter a new one:")
-                correct_label = st.selectbox("Choose category", CATEGORIES, index=0, key="select_correct")
-                custom_label = st.text_input("Or enter a new category (optional)", key="custom_correct")
+            incorrect_clicked = st.button("❌ Incorrect")
 
-                if st.button("Save Correction"):
-                    final_label = custom_label if custom_label else correct_label
+        if incorrect_clicked:
+            st.warning("Please provide the correct category below 👇")
+            correct_label = st.selectbox("Choose category", CATEGORIES, index=0, key="select_correct")
+            custom_label = st.text_input("Or enter a new category (optional)", key="custom_correct")
 
+            if st.button("Save Correction"):
+                final_label = custom_label if custom_label else correct_label
+                try:
                     supabase.table("feedback").insert({
                         "email_text": email_text,
                         "predicted_label": predicted_label,
@@ -129,6 +134,7 @@ if submitted:
                         "correct_label": final_label,
                         "created_at": datetime.utcnow().isoformat()
                     }).execute()
-
                     st.info(f"Feedback saved as incorrect ❌ with correction: {final_label}. "
                             f"This will help improve the model.")
+                except Exception as e:
+                    st.error(f"⚠️ Failed to save feedback: {e}")
