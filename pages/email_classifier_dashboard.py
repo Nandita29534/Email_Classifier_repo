@@ -128,8 +128,7 @@ if st.session_state.predicted_label:
             supabase.table("feedback").insert({
                 "email_text": st.session_state.email_text,
                 "predicted_label": st.session_state.predicted_label,
-                "is_correct": True,
-                "correct_label": None
+                "is_correct": True
             }).execute()
             st.success("Feedback saved as correct ✅")
             st.session_state.feedback_mode = None
