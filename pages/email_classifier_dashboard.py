@@ -8,7 +8,6 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from scipy.sparse import hstack, csr_matrix
 import nltk
-# from supabase import create_client
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -16,9 +15,9 @@ from firebase_admin import credentials, firestore
 # -----------------------
 # Download NLTK resources
 # -----------------------
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('vader_lexicon')
+nltk.download("punkt")
+nltk.download("stopwords")
+nltk.download("vader_lexicon")
 
 # -----------------------
 # Paths and Artifacts
@@ -111,8 +110,14 @@ with st.form("email_form"):
     submitted = st.form_submit_button("Classify Email")
 
 if submitted:
-    if not email_text:
-        st.error("Please enter some text.")
+    if not email_text.strip():
+        st.error("⚠️ Please enter some text.")
+    elif email_text.isdigit():
+        st.error("⚠️ Text cannot be only numbers.")
+    elif re.fullmatch(r"[^\w\s]+", email_text):
+        st.error("⚠️ Text cannot be only special characters.")
+    elif len(email_text.strip()) < 50:
+        st.error("⚠️ Text must be at least 50 characters long.")
     else:
         # Predict
         X_input = prepare_input(email_text)
@@ -125,10 +130,8 @@ if submitted:
 
         st.success(f"Predicted Category: **{predicted_label}**")
 
-# If classification already happened
+# Show feedback options only if prediction exists
 if st.session_state.predicted_label:
-    st.info(f"Prediction: {st.session_state.predicted_label}")
-
     col1, col2 = st.columns(2)
     with col1:
         if st.button("✅ Correct"):
