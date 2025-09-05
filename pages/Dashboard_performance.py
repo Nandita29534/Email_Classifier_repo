@@ -149,14 +149,11 @@ try:
     st.plotly_chart(fig_cm)
 
     st.markdown("## 📈 **Class Distribution in Test Data**")
-    fig_dist = px.bar(
-        y_true_named.value_counts().sort_index(),
-        labels={"index": "Category", "value": "Count"},
-        color=y_true_named.value_counts().sort_index(),
-        color_continuous_scale="Viridis"
-    )
+    class_counts = y_true_named.value_counts().reset_index()
+    class_counts.columns = ["Category", "Count"]
+    fig_dist = px.bar(class_counts,x="Category",y="Count",color="Category",color_continuous_scale="Viridis",text="Count")
+    fig_dist.update_layout(xaxis_title="Category",yaxis_title="Count",showlegend=False)
     st.plotly_chart(fig_dist)
-
     logger.info("Dashboard components rendered successfully.")
 
 except Exception as e:
