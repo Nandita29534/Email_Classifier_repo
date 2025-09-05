@@ -8,7 +8,6 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from scipy.sparse import hstack, csr_matrix
 import nltk
-from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -29,7 +28,9 @@ VECTORIZER_PATH = os.path.join(BASE_DIR, "tfidf_vectorizer.pkl")
 model = joblib.load(MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
+# -----------------------
 # Firebase setup
+# -----------------------
 firebase_dict = dict(st.secrets["Firebase"])
 firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
 
@@ -46,9 +47,7 @@ def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"\d+", " num ", text)
     text = re.sub(r"[^\w\s!?]", "", text)
-    text = " ".join(
-        [word for word in text.split() if word not in stopwords.words("english")]
-    )
+    text = " ".join([word for word in text.split() if word not in stopwords.words("english")])
     return text
 
 
@@ -77,6 +76,38 @@ def prepare_input(text: str):
     X_tfidf = vectorizer.transform([cleaned])
     X_features = extract_features(text)
     return hstack([X_tfidf, X_features])
+
+
+def is_valid_text(text: str) -> (bool, str):
+    text = text.strip()
+
+    if not text:
+        return False, "⚠️ Please enter some text."
+
+    if len(text) < 50:
+        return False, "⚠️ Text must be at least 50 characters long."
+
+    if len(text.split()) < 5:
+        return False, "⚠️ Please enter at least 5 words."
+
+    if text.isdigit():
+        return False, "⚠️ Text cannot be only numbers."
+
+    if re.fullmatch(r"[^\w\s]+", text):
+        return False, "⚠️ Text cannot be only special characters."
+
+    if re.fullmatch(r"(.)\1{5,}", text):
+        return False, "⚠️ Text cannot be just repeated characters."
+
+    if re.search(r"(.)\1{4,}", text):
+        return False, "⚠️ Text contains too many repeated characters."
+
+    letters = sum(c.isalpha() for c in text)
+    ratio = letters / max(len(text), 1)
+    if ratio < 0.5:
+        return False, "⚠️ Please enter meaningful text (too few letters)."
+
+    return True, ""
 
 
 # -----------------------
@@ -110,16 +141,10 @@ with st.form("email_form"):
     submitted = st.form_submit_button("Classify Email")
 
 if submitted:
-    if not email_text.strip():
-        st.error("⚠️ Please enter some text.")
-    elif email_text.isdigit():
-        st.error("⚠️ Text cannot be only numbers.")
-    elif re.fullmatch(r"[^\w\s]+", email_text):
-        st.error("⚠️ Text cannot be only special characters.")
-    elif len(email_text.strip()) < 50:
-        st.error("⚠️ Text must be at least 50 characters long.")
+    valid, message = is_valid_text(email_text)
+    if not valid:
+        st.error(message)
     else:
-        # Predict
         X_input = prepare_input(email_text)
         pred = model.predict(X_input)[0]
         predicted_label = CATEGORY_MAP[pred]
