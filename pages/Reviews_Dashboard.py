@@ -37,7 +37,7 @@ if feedback_data:
 
     # Show raw table
     st.subheader("All Feedback")
-    st.dataframe(df)
+    st.dataframe(df[['is_correct','predicted_label','email_text','correct_label']])
 
     # Summary stats
     st.subheader("Summary")
