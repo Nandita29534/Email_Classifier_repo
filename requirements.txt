@@ -14,3 +14,4 @@ seaborn
 plotly
 streamlit
 supabase
+firebase-admin
