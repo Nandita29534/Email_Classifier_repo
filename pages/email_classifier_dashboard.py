@@ -8,8 +8,10 @@ from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from scipy.sparse import hstack, csr_matrix
 import nltk
-from supabase import create_client
+# from supabase import create_client
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # -----------------------
 # Download NLTK resources
@@ -28,9 +30,15 @@ VECTORIZER_PATH = os.path.join(BASE_DIR, "tfidf_vectorizer.pkl")
 model = joblib.load(MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
-url = st.secrets["supabase"]["url"]
-key = st.secrets["supabase"]["key"]
-supabase = create_client(url, key)
+# Firebase setup
+firebase_dict = dict(st.secrets["Firebase"])
+firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
+
+if not firebase_admin._apps:  # Prevent re-init
+    cred = credentials.Certificate(firebase_dict)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 # -----------------------
 # Preprocessing Functions
@@ -39,8 +47,11 @@ def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"\d+", " num ", text)
     text = re.sub(r"[^\w\s!?]", "", text)
-    text = " ".join([word for word in text.split() if word not in stopwords.words('english')])
+    text = " ".join(
+        [word for word in text.split() if word not in stopwords.words("english")]
+    )
     return text
+
 
 def extract_features(text: str) -> csr_matrix:
     flesch = textstat.flesch_reading_ease(text)
@@ -48,16 +59,19 @@ def extract_features(text: str) -> csr_matrix:
     analyzer = SentimentIntensityAnalyzer()
     vader_scores = analyzer.polarity_scores(text)
 
-    features = np.array([
-    flesch,
-    gunning,
-    vader_scores['neg'],
-    vader_scores['neu'],
-    vader_scores['pos'],
-    vader_scores['compound']
-    ]).reshape(1, -1)
+    features = np.array(
+        [
+            flesch,
+            gunning,
+            vader_scores["neg"],
+            vader_scores["neu"],
+            vader_scores["pos"],
+            vader_scores["compound"],
+        ]
+    ).reshape(1, -1)
 
     return csr_matrix(features)
+
 
 def prepare_input(text: str):
     cleaned = clean_text(text)
@@ -65,16 +79,17 @@ def prepare_input(text: str):
     X_features = extract_features(text)
     return hstack([X_tfidf, X_features])
 
+
 # -----------------------
 # Category Map
 # -----------------------
 CATEGORY_MAP = {
-0: "forum",
-1: "promotions",
-2: "social_media",
-3: "spam",
-4: "updates",
-5: "verify_code"
+    0: "forum",
+    1: "promotions",
+    2: "social_media",
+    3: "spam",
+    4: "updates",
+    5: "verify_code",
 }
 CATEGORIES = list(CATEGORY_MAP.values())
 
@@ -89,7 +104,7 @@ if "predicted_label" not in st.session_state:
 if "email_text" not in st.session_state:
     st.session_state.email_text = None
 if "feedback_mode" not in st.session_state:
-    st.session_state.feedback_mode = None   # None | correct | incorrect
+    st.session_state.feedback_mode = None  # None | correct | incorrect
 
 with st.form("email_form"):
     email_text = st.text_area("Email text")
@@ -125,11 +140,13 @@ if st.session_state.predicted_label:
     # Handle Correct feedback
     if st.session_state.feedback_mode == "correct":
         try:
-            supabase.table("feedback").insert({
-                "email_text": st.session_state.email_text,
-                "predicted_label": st.session_state.predicted_label,
-                "is_correct": True
-            }).execute()
+            db.collection("feedback").document().set(
+                {
+                    "email_text": st.session_state.email_text,
+                    "predicted_label": st.session_state.predicted_label,
+                    "is_correct": True,
+                }
+            )
             st.success("Feedback saved as correct ✅")
             st.session_state.feedback_mode = None
         except Exception as e:
@@ -138,19 +155,27 @@ if st.session_state.predicted_label:
     # Handle Incorrect feedback
     elif st.session_state.feedback_mode == "incorrect":
         st.warning("Please provide the correct category below 👇")
-        correct_label = st.selectbox("Choose category", CATEGORIES, index=0, key="select_correct")
-        custom_label = st.text_input("Or enter a new category (optional)", key="custom_correct")
+        correct_label = st.selectbox(
+            "Choose category", CATEGORIES, index=0, key="select_correct"
+        )
+        custom_label = st.text_input(
+            "Or enter a new category (optional)", key="custom_correct"
+        )
 
         if st.button("Save Correction"):
             final_label = custom_label if custom_label else correct_label
             try:
-                supabase.table("feedback").insert({
-                    "email_text": st.session_state.email_text,
-                    "predicted_label": st.session_state.predicted_label,
-                    "is_correct": False,
-                    "correct_label": final_label
-                }).execute()
-                st.success(f"Feedback saved as incorrect ❌ with correction: {final_label}")
+                db.collection("feedback").document().set(
+                    {
+                        "email_text": st.session_state.email_text,
+                        "predicted_label": st.session_state.predicted_label,
+                        "is_correct": False,
+                        "correct_label": final_label,
+                    }
+                )
+                st.success(
+                    f"Feedback saved as incorrect ❌ with correction: {final_label}"
+                )
                 st.session_state.feedback_mode = None
             except Exception as e:
                 st.error(f"⚠️ Failed to save feedback: {e}")
